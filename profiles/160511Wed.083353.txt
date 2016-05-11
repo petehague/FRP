@@ -1,0 +1,84 @@
+Wed May 11 08:33:56 2016    profiles/160511Wed.083353.prof
+
+         3526400 function calls in 3.229 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+   239760    0.580    0.000    1.374    0.000 cyfrp.pyx:50(MADfilt)
+      109    0.510    0.005    3.062    0.028 {scipy.ndimage._nd_image.generic_filter}
+   239760    0.418    0.000    0.829    0.000 cyfrp.pyx:33(meanFilt)
+   210717    0.391    0.000    1.103    0.000 _methods.py:53(_mean)
+   210719    0.278    0.000    0.278    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+   210717    0.170    0.000    0.215    0.000 _methods.py:43(_count_reduce_items)
+   210717    0.102    0.000    1.205    0.000 fromnumeric.py:2796(mean)
+        1    0.085    0.085    3.229    3.229 cyfrp.pyx:149(run)
+    59940    0.081    0.000    0.081    0.000 cyfrp.pyx:69(nValidFilt)
+   479520    0.073    0.000    2.277    0.000 stringsource:65(wrap)
+   210717    0.070    0.000    0.085    0.000 numeric.py:484(asanyarray)
+    59940    0.068    0.000    0.068    0.000 cyfrp.pyx:104(nUnmaskedWaterFilt)
+   421479    0.067    0.000    0.067    0.000 {isinstance}
+       14    0.066    0.005    0.066    0.005 {_gdal_array.BandRasterIONumPy}
+    59940    0.056    0.000    0.056    0.000 cyfrp.pyx:93(nRejectWaterFilt)
+    59940    0.054    0.000    0.054    0.000 cyfrp.pyx:82(nRejectBGfireFilt)
+   210827    0.048    0.000    0.048    0.000 {issubclass}
+   210854    0.036    0.000    0.036    0.000 {hasattr}
+   210717    0.029    0.000    0.029    0.000 {range}
+     6660    0.018    0.000    0.018    0.000 cyfrp.pyx:139(adjWater)
+   211036    0.015    0.000    0.015    0.000 {numpy.core.multiarray.array}
+       12    0.006    0.000    3.050    0.254 cyfrp.pyx:115(runFilt)
+        1    0.003    0.003    0.003    0.003 {open}
+        1    0.003    0.003    0.003    0.003 {method 'close' of 'file' objects}
+      109    0.001    0.000    3.064    0.028 filters.py:1139(generic_filter)
+       14    0.001    0.000    0.067    0.005 gdal.py:1268(ReadAsArray)
+      124    0.000    0.000    0.000    0.000 {numpy.core.multiarray.empty}
+      111    0.000    0.000    0.000    0.000 {numpy.core.multiarray.zeros}
+       14    0.000    0.000    0.066    0.005 gdal_array.py:291(BandReadAsArray)
+       81    0.000    0.000    0.000    0.000 cyfrp.pyx:22(zeroFootprint)
+      109    0.000    0.000    0.000    0.000 {numpy.core.multiarray.copyto}
+      109    0.000    0.000    0.000    0.000 _ni_support.py:70(_get_output)
+      301    0.000    0.000    0.000    0.000 numeric.py:414(asarray)
+      109    0.000    0.000    0.000    0.000 numeric.py:148(ones)
+       81    0.000    0.000    0.000    0.000 {method 'astype' of 'numpy.ndarray' objects}
+      110    0.000    0.000    0.000    0.000 type_check.py:237(iscomplexobj)
+       28    0.000    0.000    0.000    0.000 gdal_array.py:175(flip_code)
+      137    0.000    0.000    0.000    0.000 _ni_support.py:55(_normalize_sequence)
+       58    0.000    0.000    0.000    0.000 numeric.py:2576(seterr)
+        1    0.000    0.000    0.006    0.006 npyio.py:969(savetxt)
+       14    0.000    0.000    0.000    0.000 {_gdal.Dataset_GetRasterBand}
+      109    0.000    0.000    0.000    0.000 {zip}
+       58    0.000    0.000    0.000    0.000 numeric.py:2676(geterr)
+       14    0.000    0.000    0.000    0.000 gdal.py:655(GetRasterBand)
+        1    0.000    0.000    0.000    0.000 numeric.py:1936(indices)
+      109    0.000    0.000    0.000    0.000 _ni_support.py:38(_extend_mode_to_code)
+       29    0.000    0.000    0.000    0.000 numeric.py:2963(__init__)
+       29    0.000    0.000    0.000    0.000 numeric.py:2967(__enter__)
+       29    0.000    0.000    0.000    0.000 numeric.py:2972(__exit__)
+       14    0.000    0.000    0.000    0.000 {method 'items' of 'dict' objects}
+       58    0.000    0.000    0.000    0.000 {numpy.core.umath.seterrobj}
+       14    0.000    0.000    0.000    0.000 gdal_array.py:194(NumericTypeCodeToGDALTypeCode)
+       14    0.000    0.000    0.000    0.000 gdal_array.py:199(GDALTypeCodeToNumericTypeCode)
+       14    0.000    0.000    0.000    0.000 gdal.py:650(<lambda>)
+        5    0.000    0.000    0.000    0.000 {method 'write' of 'file' objects}
+      112    0.000    0.000    0.000    0.000 {len}
+      116    0.000    0.000    0.000    0.000 {numpy.core.umath.geterrobj}
+       12    0.000    0.000    0.000    0.000 function_base.py:1253(copy)
+        1    0.000    0.000    0.000    0.000 nanfunctions.py:243(nanmax)
+        1    0.000    0.000    3.229    3.229 {cyfrp.run}
+        1    0.000    0.000    0.000    0.000 shape_base.py:278(column_stack)
+        1    0.000    0.000    3.229    3.229 <string>:1(<module>)
+        1    0.000    0.000    0.000    0.000 {numpy.core.multiarray.concatenate}
+       29    0.000    0.000    0.000    0.000 {method 'pop' of 'dict' objects}
+        2    0.000    0.000    0.000    0.000 {numpy.core.multiarray.arange}
+        1    0.000    0.000    0.000    0.000 fromnumeric.py:1574(shape)
+        1    0.000    0.000    0.000    0.000 {method 'any' of 'numpy.generic' objects}
+        1    0.000    0.000    0.000    0.000 {method 'count' of 'str' objects}
+        8    0.000    0.000    0.000    0.000 stringsource:64(__Pyx_CFunc_float____object____int____int____int____int____int____int___to_py)
+        1    0.000    0.000    0.000    0.000 {method 'endswith' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
+        1    0.000    0.000    0.000    0.000 _iotools.py:31(_is_string_like)
+        1    0.000    0.000    0.000    0.000 _methods.py:37(_any)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        3    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
+
+
