@@ -6,9 +6,12 @@ from osgeo import gdal
 from pyproj import Proj, transform
 import datetime
 from scipy.stats import gmean
+import time
 
+start = time.clock()
 
 #os.chdir('/smb/kb308_uol.le.ac.uk_root/staff/home/k/kb308/Research/FRP/FRPi')
+os.chdir('data')
 filList = os.listdir('.')
 
 bands = ['BAND1','BAND2','BAND7','BAND21','BAND22','BAND31','BAND32','LANDMASK','SolarZenith','SolarAzimuth','SensorZenith','SensorAzimuth','LAT','LON']
@@ -772,3 +775,6 @@ while datIter < len(datList):
             np.savetxt(filNam+'frp20160509_boundary.csv', exportCSV, delimiter=",", header = hdr)
 
     datIter += 1
+
+end = time.clock()
+print 'Runtime = {} seconds'.format(end-start)
