@@ -46,16 +46,49 @@ resolution = 5
 #ALTERNATE FUNCTION DEFINITIONS
 #############################
 
-def meanMadFilt(band, int minKsize, int maxKsize):
-    meanFilt = {}
-    madFilt = {}
-    sizex, sizey = np.shape(band)
+footprintx = []
+footprinty = []
+Ncount = []
+for s in range(minKsize, maxKsize+2,2):
+    halfSize = (s-1)/2
+    xlist = []
+    ylist = []
+    for x in range(-halfSize,halfSize+1):
+        for y in range(-halfSize,halfSize+1):
+            print x,y
+            if x is 0:
+                if abs(y)>1:
+                    xlist.append(x)
+                    ylist.append(x)
+            else:
+                xlist.append(x)
+                ylist.append(y)
+    footprintx.append(xlist)
+    footprinty.append(ylist)
+    Ncount.append(len(xlist))
+
+
+def meanMadFilt(rawband, int minKsize, int maxKsize):
+    sizex, sizey = np.shape(rawband)
+    band = np.pad(rawband, ((maxKsize,maxKsize), (maxKsize,maxKsize)), mode='symmetric')
+    meanFilt = np.full(sizex, sizey, -4.0)
+    madFilt = np.full(sizex, sizey, -4.0)
 
     for i in range(minKsize,maxKsize+2,2):
+        nmin = min(minNcount, minNfrac*i*i)
         for y in range(0,sizey):
             for x in range(0,sizex):
-                neighbours = np.take(band, footprint[i], mode='wrap') #Does this mode work?
-                centreval = band[x,y]
+                centreval = band[maxKsize+x,maxKsize+y]
+                if (((i == minKsize) | (centerVal == -4)) & (centerVal not in (range(-2,0)))):
+                    neighbours = band[maxKsize+x+footprintx[i], maxKsize+y+footprinty[i]]
+                    if (Ncount[i] > nmin): #Should not be needed here? -ve values in data before processing?
+                        bgMean = np.mean(neighbours)
+                        meanDists = np.abs(neighbours- bgMean)
+                        bgMAD = np.mean(meanDists)
+                        if meanFilt[x,y]==-4:
+                            meanFilt[x,y] = bgMean
+                        if madFilt[x,y]==-4:
+                            madFilt[x,y] = bgMAD
 
     return meanFilt, madFilt
 
@@ -68,22 +101,22 @@ def makeFootprint(kSize):
     return fp
 
 def wakelinMeanMADFilter(band,maxKsize,minKsize):
-    
+
     # Add boundary for largest known tile size (maxKsize)
-    bSize = (maxKsize-1)/2 
+    bSize = (maxKsize-1)/2
     bandMatrix = np.pad(band,((bSize,bSize),(bSize,bSize)),mode='symmetric')
 
     bandFiltsMean2 = {}
     bandFiltsMAD2 = {}
-    kSize = minKsize 
+    kSize = minKsize
     i,j = np.shape(band)
 
     # Loop through dataset
     while kSize <=  maxKsize:
-        
+
         bandMADFilt2_tmp  = np.full([i,j], -4.0)
         bandMeanFilt2_tmp = np.full([i,j], -4.0)
-        
+
         halfK = (kSize-1)/2
         for x in range(bSize,i+bSize):
             for y in range(bSize,j+bSize):
@@ -103,7 +136,7 @@ def wakelinMeanMADFilter(band,maxKsize,minKsize):
                     kernel[np.where(fpMask < 0)] = -5
                     nghbrs = kernel[np.where(kernel > 0)]
                     nghbrCnt = len(nghbrs)
-                    
+
                     if ((nghbrCnt > minNcount) & (nghbrCnt > (minNfrac * ((kSize **2))))):
                         bgMean = np.mean(nghbrs)
                         meanDists = np.abs(nghbrs - bgMean)
@@ -115,7 +148,7 @@ def wakelinMeanMADFilter(band,maxKsize,minKsize):
                         bandMADFilt2_tmp[xmb,ymb] = bgMAD
                         bandMeanFilt2_tmp[xmb,ymb] = bgMean
 
-                        
+
         filtNameMean2 = 'bandFiltMean'+str(kSize)
         bandFiltsMean2[filtNameMean2] = bandMeanFilt2_tmp
         filtNameMAD2 = 'bandFiltMAD'+str(kSize)
@@ -155,13 +188,13 @@ def rampFn(band,rampMin,rampMax):
 
 def adjCloud(kernel):
     nghbors = kernel[range(0,4)+range(5,9)]
-    cloudNghbors = kernel[np.where(nghbors == 1)]   
+    cloudNghbors = kernel[np.where(nghbors == 1)]
     nCloudNghbr = len(cloudNghbors)
     return nCloudNghbr
 
 def adjWater(kernel):
     nghbors = kernel[range(0,4)+range(5,9)]
-    waterNghbors = kernel[np.where(nghbors == 1)]   
+    waterNghbors = kernel[np.where(nghbors == 1)]
     nWaterNghbr = len(waterNghbors)
     return nWaterNghbr
 
@@ -267,7 +300,7 @@ def runFilt(band,filtFunc,minKsize,maxKsize,footprintType):
     while kSize <=  maxKsize:
         filtName = 'bandFilt'+str(kSize)
         if footprintType == 0:
-          filtBand = ndimage.generic_filter(filtBand, filtFunc, footprint=zeroFootprint(kSize), extra_arguments= (kSize,minKsize,maxKsize,(kSize-1)/2,min(minNcount, minNfrac*kSize*kSize), (kSize+1)*(kSize-1)/2 - 1)) 
+          filtBand = ndimage.generic_filter(filtBand, filtFunc, footprint=zeroFootprint(kSize), extra_arguments= (kSize,minKsize,maxKsize,(kSize-1)/2,min(minNcount, minNfrac*kSize*kSize), (kSize+1)*(kSize-1)/2 - 1))
         else:
           filtBand = ndimage.generic_filter(filtBand, filtFunc, size = kSize, extra_arguments= (kSize,minKsize,maxKsize,(kSize-1)/2,min(minNcount, minNfrac*kSize*kSize), (kSize+1)*(kSize-1)/2 - 1  ))
         bandFilts[filtName] = filtBand
@@ -293,13 +326,13 @@ def adjWater(kernel):
 #Main function
 #############################
 
-def run(datapath,procid):    
-       
+def run(datapath,procid):
+
     #OPEN INPUT BANDS
     filNam = 'MOD021KM.A2004178.2120.005.'
     bands = ['BAND1','BAND2','BAND7','BAND21','BAND22','BAND31','BAND32','LANDMASK','SolarZenith','SolarAzimuth','SensorZenith','SensorAzimuth','LAT','LON']
     modBands = ['BAND1x1k','BAND2x1k','BAND7x1k','BAND21','BAND22','BAND31','BAND32','LANDMASK','SolarZenith','SolarAzimuth','SensorZenith','SensorAzimuth','LAT','LON']
-    
+
     allArrays = {}
     fullArrays = {}
     for b in bands:
@@ -313,11 +346,11 @@ def run(datapath,procid):
         if b == 'BAND1' or b == 'BAND2' or b == 'BAND7':
             b = b + 'x1k'
             data = np.int_(np.rint(data*1000))
-    
+
         fullArrays[b] = data
 
     boundCrds = np.where((minLat<fullArrays['LAT']) &(fullArrays['LAT']<maxLat) &(fullArrays['LON']<maxLon)&(minLon<fullArrays['LON']))
-    if np.size(boundCrds)>0 and (np.min(boundCrds[0])!=np.max(boundCrds[0])) and (np.min(boundCrds[1])!=np.max(boundCrds[1])): 
+    if np.size(boundCrds)>0 and (np.min(boundCrds[0])!=np.max(boundCrds[0])) and (np.min(boundCrds[1])!=np.max(boundCrds[1])):
         boundCrds0 = boundCrds[0]
         boundCrds1 = boundCrds[1]
         min0 = np.min(boundCrds[0])
@@ -334,7 +367,7 @@ def run(datapath,procid):
 
         #TEST FOR B22 SATURATION, REPLACE W VALUES FROM B21
         allArrays['BAND22'][np.where(allArrays['BAND22']>=b22saturationVal)] = allArrays['BAND21'][np.where(allArrays['BAND22']>=b22saturationVal)]
-        
+
         #DAY/NIGHT FLAG
         dayFlag = np.zeros((nRows,nCols),dtype=np.int)
         dayFlag[np.where(allArrays['SolarZenith'] < 8500)] = 1
@@ -370,7 +403,7 @@ def run(datapath,procid):
         ##########################
         ##AFTER ALL THE DATA HAVE BEEN READ IN
         ##########################
-       
+
         bgMask = np.zeros((nRows,nCols),dtype=np.int)
 
         with np.errstate(invalid='ignore'):
@@ -406,7 +439,7 @@ def run(datapath,procid):
         b22bgRej = np.copy(allArrays['BAND22'])
         b22bgRej[np.where(bgMask != bgFlag)] = bgFlag
         b22rejMeanFilt,b22rejMADfilt = wakelinMeanMADFilter(b22bgRej,maxKsize,minKsize)
-        
+
         ####POTENTIAL FIRE TEST
         potFire = np.zeros((nRows,nCols),dtype=np.int)
         with np.errstate(invalid='ignore'):
@@ -457,7 +490,7 @@ def run(datapath,procid):
         with np.errstate(invalid='ignore'):
             fireLocB31andB22rejFire[np.where((B22rejFire == 1)|(B31fire == 1))]= 1
         fireLocTentativeDay = potFire*fireLocTentative*fireLocB31andB22rejFire
-        
+
 
         dayFires = np.zeros((nRows,nCols),dtype=np.int)
         with np.errstate(invalid='ignore'):
@@ -575,10 +608,10 @@ def run(datapath,procid):
             b22bgEXP = b22bgAllMask.astype(float)**8
 
             #frpMW = 4.34 * (10**(-19)) * (b22maskEXP-b22bgEXP) #AREA TERM HERE
-            frpMW = 4.34e-19 * (b22maskEXP-b22bgEXP)  
+            frpMW = 4.34e-19 * (b22maskEXP-b22bgEXP)
 
             frpMWabs = frpMW*potFire #APPLY ABSOLUTE TEMP THRESHOLD??????
-            
+
             #########################
             #DETECTION CONFIDENCE
             #########################
@@ -625,7 +658,7 @@ def run(datapath,procid):
             detnConf = gmean(confArray, axis = 0)
 
             ##############################################
-            
+
 
             ##################
             ##AREA CALCULATION
@@ -678,13 +711,13 @@ def run(datapath,procid):
                 FRP_MAD_DT = deltaTMADFilt[(allFires == 1) & (0 < frpMWabs) & (frpMWabs < 3900)]
                 FRP_AdjCloud = nCloudAdj[(allFires == 1) & (0 < frpMWabs) & (frpMWabs < 3900)]
                 FRP_AdjWater = nWaterAdj[(allFires == 1) & (0 < frpMWabs) & (frpMWabs < 3900)]
-#                FRP_WinSize = 
+#                FRP_WinSize =
                 FRP_NumValid = nValid[(allFires == 1) & (0 < frpMWabs) & (frpMWabs < 3900)]
                 FRP_confidence = detnConf*100
                 Area = areaKmSq[(allFires == 1) & (0 < frpMWabs) & (frpMWabs < 3900)]
                 FRPpower = frpMWabs[(allFires == 1) & (0 < frpMWabs) & (frpMWabs < 3900)]
  #               FRParea = frpMwKmSq[(allFires == 1) & (0 < frpMWabs) & (frpMWabs < 3900)]
-            
+
             exportCSV = np.column_stack([FRPline, FRPsample, FRPlats, FRPlons, FRPT21, FRPT31, FRPMeanT21, FRPMeanT31, FRPMeanDT, FRPMADT21, FRPMADT31, FRP_MAD_DT, FRPpower, FRP_AdjCloud, FRP_AdjWater, FRP_NumValid, FRP_confidence])
             hdr = 'FRPline,FRPsample,FRPlats,FRPlons,FRPT21,FRPT31,FRPMeanT21,FRPMeanT31,FRPMeanDT,FRPMADT21,FRPMADT31,FRP_MAD_DT,FRPpower,FRP_AdjCloud,FRP_AdjWater,FRP_NumValid,FRP_confidence'
             form = '%d,%d,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%d,%d,%d,%d'
