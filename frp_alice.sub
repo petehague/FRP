@@ -1,0 +1,14 @@
+#!/bin/bash
+#PBS -N FRPi
+#PBS -l walltime=00:30:00
+#PBS -q devel
+##PBS -l nodes=1:ppn=16
+#PBS -l pvmem=4gb
+#PBS -t 1-16
+
+module load python/2.7.9
+module load gdal
+
+cd $PBS_O_WORKDIR
+./run.py $PBS_ARRAYID
+

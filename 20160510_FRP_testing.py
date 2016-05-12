@@ -771,8 +771,9 @@ while datIter < len(datList):
  #               FRParea = frpMwKmSq[(allFires == 1) & (0 < frpMWabs) & (frpMWabs < 3900)]
             
             exportCSV = np.column_stack([FRPline, FRPsample, FRPlats, FRPlons, FRPT21, FRPT31, FRPMeanT21, FRPMeanT31, FRPMeanDT, FRPMADT21, FRPMADT31, FRP_MAD_DT, FRPpower, FRP_AdjCloud, FRP_AdjWater, FRP_NumValid, FRP_confidence])
-            hdr = '"FRPline","FRPsample","FRPlats","FRPlons","FRPT21","FRPT31","FRPMeanT21","FRPMeanT31","FRPMeanDT","FRPMADT21","FRPMADT31","FRP_MAD_DT","FRPpower","FRP_AdjCloud","FRP_AdjWater","FRP_NumValid","FRP_confidence"'
-            np.savetxt(filNam+'frp20160509_boundary.csv', exportCSV, delimiter=",", header = hdr)
+            hdr = 'FRPline,FRPsample,FRPlats,FRPlons,FRPT21,FRPT31,FRPMeanT21,FRPMeanT31,FRPMeanDT,FRPMADT21,FRPMADT31,FRP_MAD_DT,FRPpower,FRP_AdjCloud,FRP_AdjWater,FRP_NumValid,FRP_confidence'
+            form = '%d,%d,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%d,%d,%d,%d'
+            np.savetxt(filNam+'frp20160509_boundary.csv', exportCSV, header = hdr, fmt = form)
 
     datIter += 1
 
