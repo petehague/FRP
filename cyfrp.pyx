@@ -78,6 +78,7 @@ def meanMadFilt(np.ndarray[np.float32_t, ndim=2] rawband, int minKsize, int maxK
     cdef np.ndarray[np.float32_t, ndim=1] meanDists, neighbours
     cdef np.ndarray[np.float32_t, ndim=2] meanFilt,madFilt
     cdef np.ndarray[np.float32_t, ndim=2] band
+    cdef np.ndarray[np.float64_t, ndim=1] divTable #Higher precision needed
 
     sizex, sizey = np.shape(rawband)
     bSize = (maxKsize-1)/2
@@ -85,28 +86,40 @@ def meanMadFilt(np.ndarray[np.float32_t, ndim=2] rawband, int minKsize, int maxK
     meanFilt = np.full([sizex, sizey], -4.0, dtype=np.float32)
     madFilt = np.full([sizex, sizey], -4.0, dtype=np.float32)
 
-    cdef np.ndarray[np.float32_t, ndim=1] divTable
-    divTable = 1.0/np.arange(1,maxKsize*maxKsize, dtype=np.float32)
-    np.insert(divTable,0,0)
+    divTable = 1.0/np.arange(1,maxKsize*maxKsize, dtype=np.float64)
+    divTable = np.insert(divTable,0,0)
 
-    for i in range(len(ksizes)):
+    nmin = min(minNcount, minNfrac*minKsize*minKsize)
+    for y in range(0,sizey):
+        for x in range(0,sizex):        
+            centerVal = band[bSize+x,bSize+y]
+            if centerVal not in range(-2,0):
+               neighbours = band[bSize+x+footprintx[0], bSize+y+footprinty[0]]
+               neighbours = neighbours[np.where(neighbours>0)]
+               nn = len(neighbours)
+               if (nn > nmin): 
+                   if meanFilt[x,y]==-4:
+                        bgMean = np.sum(neighbours)*divTable[nn]
+                        meanFilt[x,y] = bgMean  
+                        meanDists = np.abs(neighbours- bgMean)
+                        bgMAD = np.sum(meanDists)*divTable[nn]
+                        madFilt[x,y] = bgMAD
+
+    for i in range(1.0, len(ksizes)):
         nmin = min(minNcount, minNfrac*ksizes[i]*ksizes[i])
         for y in range(0,sizey):
             for x in range(0,sizex):
                 centerVal = band[bSize+x,bSize+y]
-                if (((i == 0) | (centerVal == -4)) & (centerVal not in (range(-2,0)))):
+                if centerVal == -4:
                     neighbours = band[bSize+x+footprintx[i], bSize+y+footprinty[i]]
                     neighbours = neighbours[np.where(neighbours>0)]
                     nn = len(neighbours)
                     if (nn > nmin): 
-                        #bgMean = np.mean(neighbours)
                         if meanFilt[x,y]==-4:
-                            bgMean = np.mean(neighbours)
-                            #bgMean = np.sum(neighbours)*divTable[nn]
-                            meanFilt[x,y] = bgMean          
-                        #if madFilt[x,y]==-4:
+                            bgMean = np.sum(neighbours)*divTable[nn]
+                            meanFilt[x,y] = bgMean  
                             meanDists = np.abs(neighbours- bgMean)
-                            bgMAD = np.mean(meanDists)
+                            bgMAD = np.sum(meanDists)*divTable[nn]
                             madFilt[x,y] = bgMAD
 
     return meanFilt, madFilt
