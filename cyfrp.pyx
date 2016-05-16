@@ -7,6 +7,7 @@ from osgeo import gdal
 from pyproj import Proj, transform
 import datetime
 from scipy.stats import gmean
+cimport numpy as np
 
 #AK BOREAL EXTENT
 minX = -511738.931
@@ -14,17 +15,17 @@ minY = 1176158.734
 maxX = 672884.463
 maxY = 2117721.949
 
-###BOREAL LATLONS
-##minLat = 62
-##maxLat = 68.6
-##minLon = -162
-##maxLon = -140
+##BOREAL LATLONS
+#minLat = 62
+#maxLat = 68.6
+#minLon = -162
+#maxLon = -140
 
 #BOUNDARY LATLONS
-minLat = 65
-maxLat = 65.525
-minLon = -148
-maxLon = -146
+#minLat = 65
+#maxLat = 65.525
+#minLon = -148
+#maxLon = -146
 
 #Geometric settings for sampling
 nProjRows = np.int_(np.rint((maxY-minY)/1000))
@@ -49,45 +50,51 @@ resolution = 5
 footprintx = []
 footprinty = []
 Ncount = []
+ksizes = []
 for s in range(minKsize, maxKsize+2,2):
     halfSize = (s-1)/2
     xlist = []
     ylist = []
     for x in range(-halfSize,halfSize+1):
         for y in range(-halfSize,halfSize+1):
-            print x,y
             if x is 0:
                 if abs(y)>1:
                     xlist.append(x)
-                    ylist.append(x)
+                    ylist.append(y)
             else:
                 xlist.append(x)
                 ylist.append(y)
-    footprintx.append(xlist)
-    footprinty.append(ylist)
+    footprintx.append(np.array(xlist))
+    footprinty.append(np.array(ylist))
     Ncount.append(len(xlist))
+    ksizes.append(s)
 
 
 def meanMadFilt(rawband, int minKsize, int maxKsize):
-    sizex, sizey = np.shape(rawband)
-    band = np.pad(rawband, ((maxKsize,maxKsize), (maxKsize,maxKsize)), mode='symmetric')
-    meanFilt = np.full(sizex, sizey, -4.0)
-    madFilt = np.full(sizex, sizey, -4.0)
+    cdef int sizex, sizey, bSize, i, x, y
+    cdef float centerVal, bgMean
 
-    for i in range(minKsize,maxKsize+2,2):
-        nmin = min(minNcount, minNfrac*i*i)
+    sizex, sizey = np.shape(rawband)
+    bSize = (maxKsize-1)/2
+    band = np.pad(rawband,((bSize,bSize),(bSize,bSize)),mode='symmetric')
+    meanFilt = np.full([sizex, sizey], -4.0)
+    madFilt = np.full([sizex, sizey], -4.0)
+
+    for i in range(len(ksizes)):
+        nmin = min(minNcount, minNfrac*ksizes[i]*ksizes[i])
         for y in range(0,sizey):
             for x in range(0,sizex):
-                centreval = band[maxKsize+x,maxKsize+y]
-                if (((i == minKsize) | (centerVal == -4)) & (centerVal not in (range(-2,0)))):
-                    neighbours = band[maxKsize+x+footprintx[i], maxKsize+y+footprinty[i]]
-                    if (Ncount[i] > nmin): #Should not be needed here? -ve values in data before processing?
+                centerVal = band[bSize+x,bSize+y]
+                if (((i == 0) | (centerVal == -4)) & (centerVal not in (range(-2,0)))):
+                    neighbours = band[bSize+x+footprintx[i], bSize+y+footprinty[i]]
+                    neighbours = neighbours[np.where(neighbours>0)]
+                    if (len(neighbours) > nmin): 
                         bgMean = np.mean(neighbours)
-                        meanDists = np.abs(neighbours- bgMean)
-                        bgMAD = np.mean(meanDists)
                         if meanFilt[x,y]==-4:
                             meanFilt[x,y] = bgMean
                         if madFilt[x,y]==-4:
+                            meanDists = np.abs(neighbours- bgMean)
+                            bgMAD = np.mean(meanDists)
                             madFilt[x,y] = bgMAD
 
     return meanFilt, madFilt
@@ -133,8 +140,11 @@ def wakelinMeanMADFilter(band,maxKsize,minKsize):
 
                 if (((kSize == minKsize) | (centerVal == -4)) & (centerVal not in (range(-2,0)))):
                     fpMask = makeFootprint(kSize)
-                    kernel[np.where(fpMask < 0)] = -5
+                    kernel[np.where(fpMask < 0)] = -5           
                     nghbrs = kernel[np.where(kernel > 0)]
+                    #i = (kSize-minKsize)/2
+                    #nghbrs = bandMatrix[x+footprintx[i], y+footprinty[i]].copy()
+                    #nghbrs = nghbrs[np.where(nghbrs>0)]
                     nghbrCnt = len(nghbrs)
 
                     if ((nghbrCnt > minNcount) & (nghbrCnt > (minNfrac * ((kSize **2))))):
@@ -326,7 +336,7 @@ def adjWater(kernel):
 #Main function
 #############################
 
-def run(datapath,procid):
+def run(datapath,procid,minLat,maxLat,minLon,maxLon):
 
     #OPEN INPUT BANDS
     filNam = 'MOD021KM.A2004178.2120.005.'
@@ -426,7 +436,9 @@ def run(datapath,procid):
     #### MEAN AND MAD FILTERS (MAD NEEDED FOR CONFIDENCE ESTIMATION)
     ####################################################################################
 
-        b22meanFilt,b22MADfilt = wakelinMeanMADFilter(b22bgMask,maxKsize,minKsize)
+        #b22meanFilt,b22MADfilt = wakelinMeanMADFilter(b22bgMask,maxKsize,minKsize)
+
+        b22meanFilt,b22MADfilt = meanMadFilt(b22bgMask,minKsize,maxKsize) 
         #b22meanFilt = runFilt(b22bgMask,meanFilt,minKsize,maxKsize,0)
         #b22MADfilt = runFilt(b22bgMask,MADfilt,minKsize,maxKsize,0)
 
@@ -722,4 +734,5 @@ def run(datapath,procid):
             hdr = 'FRPline,FRPsample,FRPlats,FRPlons,FRPT21,FRPT31,FRPMeanT21,FRPMeanT31,FRPMeanDT,FRPMADT21,FRPMADT31,FRP_MAD_DT,FRPpower,FRP_AdjCloud,FRP_AdjWater,FRP_NumValid,FRP_confidence'
             form = '%d,%d,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%d,%d,%d,%d'
             np.savetxt(filNam+'frp20160509_boundary.csv', exportCSV, header = hdr, fmt = form)
-run("data",0)
+
+#run("data",0)

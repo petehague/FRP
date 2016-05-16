@@ -6,7 +6,7 @@ import sys
 
 filename = 'profiles/{}'.format(t.strftime('%y%m%d%a.%H%M%S'))
 
-cProfile.runctx('cyfrp.run("data",0)',globals(),locals(),'{}.prof'.format(filename))
+cProfile.runctx('cyfrp.run("data",0,65,65.525,-148,-146)',globals(),locals(),'{}.prof'.format(filename))
 s = pstats.Stats('{}.prof'.format(filename))
 s.strip_dirs().sort_stats('time').print_stats(10)
 
