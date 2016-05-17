@@ -3,6 +3,9 @@
 import sys
 import math as m
 import cyfrp
+import time as t
+
+start = t.clock()
 
 if len(sys.argv)>1:
     jobrank = int(sys.argv[1])
@@ -56,4 +59,7 @@ if yi>0:
 #Analyse tile
 print "(Lat =",ay,"Lon =",ax,") to (Lat =",by,"Lon =",bx,")"
 cyfrp.run("data", jobrank, ay, by, ax, bx)
+
+end = t.clock()
+print 'Time elapsed {} seconds'.format(end-start)
 
