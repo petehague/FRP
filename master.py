@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 
 import sys
+import math as m
+import cyfrp
 
 if len(sys.argv)>1:
     jobrank = int(sys.argv[1])
 else:
     jobrank = 0
+
+if len(sys.argv)>2:
+    numjobs = int(sys.argv[2])
+else:
+    numjobs = 1
 
 def procarea(x0,y0,x1,y1):
     xlist = []
@@ -18,33 +25,35 @@ def procarea(x0,y0,x1,y1):
     return xlist,ylist
 
 #Fixed parameters
-minx = 0
-miny = 0
-maxx = 100
-maxy = 100
+minLat = 62
+maxLat = 68.6
+minLon = -162
+maxLon = -140
 
-blockx = 50
-blocky = 50
-tabsize = 5
+tabsize = 0.1 #Level of overlap between tiles, as fraction of shortest side of tile
 
 #Inferred parameters
-nblockx = (maxx-minx)/blockx
-nblocky = (maxy-miny)/blocky
+ntilex = int(m.sqrt(numjobs))
+ntiley = numjobs/ntilex
+tilex = abs(maxLon-minLon)/ntilex
+tiley = abs(maxLat-minLat)/ntiley
+tabsize *= min(tilex, tiley)
 
-yi = jobrank//nblockx
-xi = int(nblockx*(jobrank/float(nblockx)-yi))
+#Job specific paramters
+yi = jobrank//ntilex
+xi = int(ntilex*(jobrank/float(ntilex)-yi))
 
-ax = xi*blockx
-ay = yi*blocky
-bx = ax+blockx
-by = ay+blocky
+ax = minLon+xi*tilex
+ay = minLat+yi*tiley
+bx = ax+tilex
+by = ay+tiley
 
 if xi>0:
     ax -= tabsize
 if yi>0:
     ay -= tabsize
 
-#Analyse blocks
-resultx, resulty = procarea(ax,ay,bx,by)
+#Analyse tile
+print "(Lat =",ay,"Lon =",ax,") to (Lat =",by,"Lon =",bx,")"
+cyfrp.run("data", jobrank, ay, by, ax, bx)
 
-#print resultx

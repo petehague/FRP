@@ -4,7 +4,7 @@ from scipy import ndimage
 import numpy as np
 import os
 from osgeo import gdal
-from pyproj import Proj, transform
+#from pyproj import Proj, transform
 import datetime
 from scipy.stats import gmean
 cimport numpy as np
@@ -686,6 +686,6 @@ def run(datapath,procid,minLat,maxLat,minLon,maxLon):
             exportCSV = np.column_stack([FRPline, FRPsample, FRPlats, FRPlons, FRPT21, FRPT31, FRPMeanT21, FRPMeanT31, FRPMeanDT, FRPMADT21, FRPMADT31, FRP_MAD_DT, FRPpower, FRP_AdjCloud, FRP_AdjWater, FRP_NumValid, FRP_confidence])
             hdr = 'FRPline,FRPsample,FRPlats,FRPlons,FRPT21,FRPT31,FRPMeanT21,FRPMeanT31,FRPMeanDT,FRPMADT21,FRPMADT31,FRP_MAD_DT,FRPpower,FRP_AdjCloud,FRP_AdjWater,FRP_NumValid,FRP_confidence'
             form = '%d,%d,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%.6g,%d,%d,%d,%d'
-            np.savetxt(filNam+'frp20160509_boundary.csv', exportCSV, header = hdr, fmt = form)
+            np.savetxt('{}{}.LA{}_{}.LO{}_{}.csv'.format(filNam,procid,minLat,maxLat,minLon,maxLon), exportCSV, header = hdr, fmt = form)
 
 #run("data",0)
