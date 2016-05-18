@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -N FRPi
+#PBS -N FRP
 #PBS -l walltime=00:10:00
 #PBS -q devel
 ##PBS -l nodes=1:ppn=16
