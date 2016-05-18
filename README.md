@@ -1,4 +1,27 @@
-# Installation instructions
+This code is designed to be used on the ALICE cluster at the University of Leicester
+
+##Use on ALICE
+
+Log into ALICE (remember to use the -X option on ssh) and load the following modules
+
+    module load python/2.7.9
+    module load gdal
+    module load R
+    
+Make the code
+
+    make
+
+Then submit a job
+
+    qsub frp_alice.sub
+
+Once this has finished, run the post processing script 
+
+    R
+    source("postproc.r")
+
+# Serial profiling
 
 Ensure that you have Cython, GDAL, numpy and scipy available. Type 
 
@@ -7,16 +30,3 @@ Ensure that you have Cython, GDAL, numpy and scipy available. Type
 and then 
 
     ./doprof.py
-
-##Use on ALICE
-
-before making the code, load the following modules
-
-    module load python/2.7.9
-    module load gdal
-
-Once the Cython module is ready, you can use
-
-    qsub frp_alice.sub
-
-to do a test run - 16 jobs running the test code 100 times each
