@@ -8,7 +8,7 @@ import time as t
 start = t.clock()
 
 if len(sys.argv)>1:
-    jobrank = int(sys.argv[1])
+    jobrank = int(sys.argv[1]) - 1
 else:
     jobrank = 0
 
