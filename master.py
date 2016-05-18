@@ -37,7 +37,7 @@ tabsize = 0.1 #Level of overlap between tiles, as fraction of shortest side of t
 
 #Inferred parameters
 ntilex = int(m.sqrt(numjobs))
-ntiley = numjobs/ntilex
+ntiley = int(numjobs/ntilex)
 tilex = abs(maxLon-minLon)/ntilex
 tiley = abs(maxLat-minLat)/ntiley
 tabsize *= min(tilex, tiley)
