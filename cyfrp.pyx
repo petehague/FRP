@@ -298,14 +298,11 @@ def run(datapath,procid,minLat,maxLat,minLon,maxLon):
         fullFilName = datapath + "/" + filNam + b + '.tif'
         ds = gdal.Open(fullFilName)
         data = np.array(ds.GetRasterBand(1).ReadAsArray())
-        #data = data[1472:1546,566:656] #BOUNDARY FIRE AREA
         if b == 'BAND21' or b == 'BAND22' or b == 'BAND31' or b == 'BAND32':
-    #        data = np.int_(np.rint(data))
             data = data
         if b == 'BAND1' or b == 'BAND2' or b == 'BAND7':
             b = b + 'x1k'
-            #data = np.int_(np.rint(data*1000))
-            data = np.rint(data*1000)
+            data = np.int_(np.rint(data*1000))
 
         fullArrays[b] = data
 
