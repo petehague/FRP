@@ -302,7 +302,7 @@ def run(datapath,procid,minLat,maxLat,minLon,maxLon):
             data = data
         if b == 'BAND1' or b == 'BAND2' or b == 'BAND7':
             b = b + 'x1k'
-            data = np.int_(np.rint(data*1000))
+            data = np.rint(data*1000)
 
         fullArrays[b] = data
 
