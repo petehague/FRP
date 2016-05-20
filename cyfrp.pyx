@@ -129,7 +129,7 @@ def rampFn(band,rampMin,rampMax):
     confVals = []
     for bandVal in band:
         if rampMin < bandVal < rampMax:
-            conf = (bandVal-rampMin)/(rampMax-rampMin)
+            conf = (bandVal-rampMin)/float(rampMax-rampMin)
         if bandVal >= rampMax: #I THINK THIS SHOULD BE GREATER THAN!!!
             conf = 1
         confVals.append(conf)
